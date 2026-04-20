@@ -1,0 +1,9 @@
+http:
+  address: 0.0.0.0:2900
+  idleTimeout: 90s
+  readTimeout: 10s
+  writeTimeout: 20s
+database:
+  dbPath: ./storage/db.sql
+log: 
+  logPath: ./storage/app.log

@@ -1,0 +1,7 @@
+# .env file and configs
+.env
+config.yaml
+storage
+tmp
+main
+main.exe
