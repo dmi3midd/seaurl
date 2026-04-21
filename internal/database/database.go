@@ -8,10 +8,12 @@ import (
 	"time"
 
 	"seaurl/internal/config"
+	"seaurl/migrations"
 
 	"github.com/jmoiron/sqlx"
 	_ "github.com/joho/godotenv/autoload"
 	_ "github.com/mattn/go-sqlite3"
+	"github.com/pressly/goose/v3"
 )
 
 // Service represents a service that interacts with a database.
@@ -43,14 +45,14 @@ func New(cfg *config.Config) (DBService, error) {
 		return nil, fmt.Errorf("failed to open database: %w", err)
 	}
 
-	// goose.SetBaseFS(migrations.FS)
+	goose.SetBaseFS(migrations.FS)
 
-	// if err := goose.SetDialect("sqlite3"); err != nil {
-	// 	log.Fatal(err)
-	// }
-	// if err := goose.Up(db.DB, "."); err != nil {
-	// 	log.Fatal(err)
-	// }
+	if err := goose.SetDialect("sqlite3"); err != nil {
+		log.Fatal(err)
+	}
+	if err := goose.Up(db.DB, "."); err != nil {
+		log.Fatal(err)
+	}
 
 	return &dbService{
 		db:     db,
