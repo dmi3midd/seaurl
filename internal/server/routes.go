@@ -2,62 +2,66 @@ package server
 
 import (
 	"encoding/json"
+	"errors"
 	"log"
 	"net/http"
+	"seaurl/internal/service"
+
+	"github.com/go-chi/chi/v5"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
-	mux := http.NewServeMux()
+	router := chi.NewRouter()
 
-	// Register routes
-	mux.HandleFunc("/", s.HelloWorldHandler)
+	router.Post("/", s.CreateAliasHandler())
+	router.Get("/{alias}", s.RedirectHandler())
 
-	mux.HandleFunc("/health", s.healthHandler)
-
-	// Wrap the mux with CORS middleware
-	return s.corsMiddleware(mux)
+	return router
 }
 
-func (s *Server) corsMiddleware(next http.Handler) http.Handler {
-	return http.HandlerFunc(func(w http.ResponseWriter, r *http.Request) {
-		// Set CORS headers
-		w.Header().Set("Access-Control-Allow-Origin", "*") // Replace "*" with specific origins if needed
-		w.Header().Set("Access-Control-Allow-Methods", "GET, POST, PUT, DELETE, OPTIONS, PATCH")
-		w.Header().Set("Access-Control-Allow-Headers", "Accept, Authorization, Content-Type, X-CSRF-Token")
-		w.Header().Set("Access-Control-Allow-Credentials", "false") // Set to "true" if credentials are required
+type ReqBody struct {
+	Url string `json:"url"`
+}
 
-		// Handle preflight OPTIONS requests
-		if r.Method == http.MethodOptions {
-			w.WriteHeader(http.StatusNoContent)
+func (s *Server) CreateAliasHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		var reqBody ReqBody
+		if err := json.NewDecoder(r.Body).Decode(&reqBody); err != nil {
+			http.Error(w, "Invalid request body", http.StatusBadRequest)
 			return
 		}
 
-		// Proceed with the next handler
-		next.ServeHTTP(w, r)
-	})
-}
-
-func (s *Server) HelloWorldHandler(w http.ResponseWriter, r *http.Request) {
-	resp := map[string]string{"message": "Hello World"}
-	jsonResp, err := json.Marshal(resp)
-	if err != nil {
-		http.Error(w, "Failed to marshal response", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(jsonResp); err != nil {
-		log.Printf("Failed to write response: %v", err)
+		url, err := s.service.Save(r.Context(), reqBody.Url)
+		if err != nil {
+			http.Error(w, "Failed to save URL", http.StatusInternalServerError)
+			return
+		}
+		w.Header().Set("Content-Type", "application/json")
+		w.WriteHeader(http.StatusOK)
+		if err := json.NewEncoder(w).Encode(url); err != nil {
+			log.Printf("Failed to encode response: %v", err)
+		}
 	}
 }
 
-func (s *Server) healthHandler(w http.ResponseWriter, r *http.Request) {
-	resp, err := json.Marshal(s.db.Health())
-	if err != nil {
-		http.Error(w, "Failed to marshal health check response", http.StatusInternalServerError)
-		return
-	}
-	w.Header().Set("Content-Type", "application/json")
-	if _, err := w.Write(resp); err != nil {
-		log.Printf("Failed to write response: %v", err)
+func (s *Server) RedirectHandler() http.HandlerFunc {
+	return func(w http.ResponseWriter, r *http.Request) {
+		alias := chi.URLParam(r, "alias")
+		if alias == "" {
+			http.Redirect(w, r, "/", http.StatusMovedPermanently)
+			return
+		}
+
+		url, err := s.service.GetByAlias(r.Context(), alias)
+		if err != nil {
+			if errors.Is(err, service.ErrUrlNotFound) {
+				http.Error(w, "URL not found", http.StatusNotFound)
+				return
+			}
+			http.Error(w, "Failed to get URL", http.StatusInternalServerError)
+			return
+		}
+
+		http.Redirect(w, r, url.Url, http.StatusSeeOther)
 	}
 }

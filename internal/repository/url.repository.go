@@ -49,7 +49,7 @@ func (store *repository) GetByAlias(ctx context.Context, alias string) (*models.
 
 func (store *repository) Create(ctx context.Context, url *models.Url) (*models.Url, error) {
 	op := "UrlRepository.Create"
-	query := `INSERT INTO urls SET (id, url, alias) VALUES (:id, :url, :alias)`
+	query := `INSERT INTO urls (id, url, alias) VALUES (:id, :url, :alias)`
 	if _, err := store.db.NamedExecContext(ctx, query, url); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
