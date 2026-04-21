@@ -18,22 +18,22 @@ var (
 type URLRepository interface {
 	// GetByAlias retrieves a Url entity by its alias.
 	// It returns ErrUrlNotFound if no url are found.
-	GetByAlias(ctx context.Context, alias string) *models.Url
+	GetByAlias(ctx context.Context, alias string) (*models.Url, error)
 	// Save creates a Url entity and returns it.
-	Save(ctx context.Context, url string, alias string) *models.Url
+	Create(ctx context.Context, url string, alias string) (*models.Url, error)
 }
 
-type URLStorage struct {
+type repository struct {
 	db *sqlx.DB
 }
 
-func NewURLStorage(db *sqlx.DB) URLStorage {
-	return URLStorage{
+func NewURLStorage(db *sqlx.DB) *repository {
+	return &repository{
 		db: db,
 	}
 }
 
-func (store *URLStorage) GetByAlias(ctx context.Context, alias string) (*models.Url, error) {
+func (store *repository) GetByAlias(ctx context.Context, alias string) (*models.Url, error) {
 	op := "UrlRepository.GetByAlias"
 	query := `SELECT id, url, alias FROM urls WHERE alias = ?`
 	var url models.Url
@@ -47,8 +47,8 @@ func (store *URLStorage) GetByAlias(ctx context.Context, alias string) (*models.
 	return &url, nil
 }
 
-func (store *URLStorage) Save(ctx context.Context, url *models.Url) (*models.Url, error) {
-	op := "UrlRepository.Save"
+func (store *repository) Create(ctx context.Context, url *models.Url) (*models.Url, error) {
+	op := "UrlRepository.Create"
 	query := `INSERT INTO urls SET (id, url, alias) VALUES (:id, :url, :alias)`
 	if _, err := store.db.NamedExecContext(ctx, query, url); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
