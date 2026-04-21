@@ -19,8 +19,8 @@ type URLRepository interface {
 	// GetByAlias retrieves a Url entity by its alias.
 	// It returns ErrUrlNotFound if no url are found.
 	GetByAlias(ctx context.Context, alias string) (*models.Url, error)
-	// Save creates a Url entity and returns it.
-	Create(ctx context.Context, url string, alias string) (*models.Url, error)
+	// Create creates a Url entity and returns it.
+	Create(ctx context.Context, url *models.Url) (*models.Url, error)
 }
 
 type repository struct {
