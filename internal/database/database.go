@@ -48,10 +48,10 @@ func New(cfg *config.Config) (DBService, error) {
 	goose.SetBaseFS(migrations.FS)
 
 	if err := goose.SetDialect("sqlite3"); err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to set dialect: %w", err)
 	}
 	if err := goose.Up(db.DB, "."); err != nil {
-		log.Fatal(err)
+		return nil, fmt.Errorf("failed to run migrations: %w", err)
 	}
 
 	return &dbService{

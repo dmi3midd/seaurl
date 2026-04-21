@@ -44,14 +44,15 @@ func (s *service) GetByAlias(ctx context.Context, alias string) (*models.Url, er
 }
 
 // TODO: Add collision check. Currently relying on high entropy of crypto/rand.
-func (s *service) Save(ctx context.Context, url string) (*models.Url, error) {
+// TODO: Add validation for url.
+func (s *service) Save(ctx context.Context, urlStr string) (*models.Url, error) {
 	op := "URLService.Save"
 
 	id := rand.Text()[:10]
 	alias := rand.Text()[:8]
 	newUrl := models.Url{
 		Id:    id,
-		Url:   url,
+		Url:   urlStr,
 		Alias: alias,
 	}
 

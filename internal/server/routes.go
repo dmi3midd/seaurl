@@ -8,11 +8,14 @@ import (
 	"seaurl/internal/service"
 
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func (s *Server) RegisterRoutes() http.Handler {
 	router := chi.NewRouter()
 
+	router.Use(middleware.Logger)
+	router.Use(middleware.Recoverer)
 	router.Post("/", s.CreateAliasHandler())
 	router.Get("/{alias}", s.RedirectHandler())
 
@@ -62,6 +65,6 @@ func (s *Server) RedirectHandler() http.HandlerFunc {
 			return
 		}
 
-		http.Redirect(w, r, url.Url, http.StatusSeeOther)
+		http.Redirect(w, r, url.Url, http.StatusMovedPermanently)
 	}
 }
