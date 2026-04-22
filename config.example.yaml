@@ -4,6 +4,6 @@ http:
   readTimeout: 10s
   writeTimeout: 20s
 database:
-  dbPath: ./storage/db.sql
+  dbPath: ./storage/seaurl.db
 log: 
-  logPath: ./storage/app.log
+  logPath: ./storage/seaurl.log

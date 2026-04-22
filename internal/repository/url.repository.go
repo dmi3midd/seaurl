@@ -34,7 +34,7 @@ func NewURLStorage(db *sqlx.DB) *repository {
 }
 
 func (store *repository) GetByAlias(ctx context.Context, alias string) (*models.Url, error) {
-	op := "UrlRepository.GetByAlias"
+	op := "URLRepository.GetByAlias"
 	query := `SELECT id, url, alias FROM urls WHERE alias = ?`
 	var url models.Url
 	err := store.db.GetContext(ctx, &url, query, alias)
@@ -48,7 +48,7 @@ func (store *repository) GetByAlias(ctx context.Context, alias string) (*models.
 }
 
 func (store *repository) Create(ctx context.Context, url *models.Url) (*models.Url, error) {
-	op := "UrlRepository.Create"
+	op := "URLRepository.Create"
 	query := `INSERT INTO urls (id, url, alias) VALUES (:id, :url, :alias)`
 	if _, err := store.db.NamedExecContext(ctx, query, url); err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)

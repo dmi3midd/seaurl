@@ -60,6 +60,5 @@ func (s *service) Save(ctx context.Context, urlStr string) (*models.Url, error) 
 	if err != nil {
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
-
 	return resUrl, nil
 }
