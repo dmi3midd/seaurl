@@ -18,7 +18,6 @@ require (
 
 require (
 	github.com/fsnotify/fsnotify v1.9.0 // indirect
-	github.com/go-chi/chi v1.5.5
 	github.com/go-viper/mapstructure/v2 v2.4.0 // indirect
 	github.com/jmoiron/sqlx v1.4.0
 	github.com/pelletier/go-toml/v2 v2.2.4 // indirect

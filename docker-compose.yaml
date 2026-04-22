@@ -1,0 +1,12 @@
+version: '3.8'
+
+services:
+  seaurl:
+    build: .
+    container_name: seaurl
+    restart: unless-stopped
+    ports:
+      - "2900:2900"
+    volumes:
+      - ./config.yaml:/app/config.yaml:ro
+      - ./storage:/app/storage
