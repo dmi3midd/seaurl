@@ -2,11 +2,12 @@ package service
 
 import (
 	"context"
-	"crypto/rand"
 	"errors"
 	"fmt"
 	"seaurl/internal/models"
 	"seaurl/internal/repository"
+
+	"github.com/rs/xid"
 )
 
 var (
@@ -48,8 +49,8 @@ func (s *service) GetByAlias(ctx context.Context, alias string) (*models.Url, er
 func (s *service) Save(ctx context.Context, urlStr string) (*models.Url, error) {
 	op := "URLService.Save"
 
-	id := rand.Text()[:10]
-	alias := rand.Text()[:8]
+	id := xid.New().String()[:10]
+	alias := xid.New().String()[:8]
 	newUrl := models.Url{
 		Id:    id,
 		Url:   urlStr,
