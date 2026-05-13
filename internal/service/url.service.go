@@ -11,7 +11,8 @@ import (
 )
 
 var (
-	ErrUrlNotFound = errors.New("url not found")
+	ErrUrlNotFound           = errors.New("url not found")
+	ErrFailedToGenerateAlias = errors.New("failed to generate unique alias")
 )
 
 type URLService interface {
@@ -44,13 +45,15 @@ func (s *service) GetByAlias(ctx context.Context, alias string) (*models.Url, er
 	return url, nil
 }
 
-// TODO: Add collision check. Currently relying on high entropy of crypto/rand.
 // TODO: Add validation for url.
 func (s *service) Save(ctx context.Context, urlStr string) (*models.Url, error) {
 	op := "URLService.Save"
 
-	id := xid.New().String()[:10]
-	alias := xid.New().String()[:8]
+	id := xid.New().String()
+	alias, err := s.generateUniqueAlias(ctx)
+	if err != nil {
+		return nil, fmt.Errorf("%s: %w", op, err)
+	}
 	newUrl := models.Url{
 		Id:    id,
 		Url:   urlStr,
@@ -62,4 +65,23 @@ func (s *service) Save(ctx context.Context, urlStr string) (*models.Url, error) 
 		return nil, fmt.Errorf("%s: %w", op, err)
 	}
 	return resUrl, nil
+}
+
+func (s *service) generateUniqueAlias(ctx context.Context) (string, error) {
+	const op = "URLService.generateUniqueAlias"
+	const maxRetries = 5
+
+	for i := 0; i < maxRetries; i++ {
+		alias := xid.New().String()[:8]
+		_, err := s.GetByAlias(ctx, alias)
+		if err != nil {
+			if errors.Is(err, repository.ErrUrlNotFound) {
+				return alias, nil
+			}
+			return "", fmt.Errorf("%s: %w", op, err)
+		}
+
+	}
+
+	return "", fmt.Errorf("%s: %w", op, ErrFailedToGenerateAlias)
 }
