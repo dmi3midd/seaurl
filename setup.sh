@@ -1,3 +1,4 @@
+#!/bin/sh
 echo -e "SeaURL initialization..."
 
 # 1. Directories

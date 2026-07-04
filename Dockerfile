@@ -10,8 +10,6 @@ RUN go mod download
 
 COPY . .
 
-RUN ./setup.sh
-
 RUN CGO_ENABLED=0 GOOS=linux go build -o seaurl ./cmd/api/main.go
 
 # Runner stage
