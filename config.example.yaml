@@ -3,7 +3,15 @@ http:
   idleTimeout: 90s
   readTimeout: 10s
   writeTimeout: 20s
-database:
-  dbPath: ./storage/seaurl.db
-log: 
+postgres:
+  dbname: seaurl
+  host: postgres
+  port: 5432
+  user: seaurl_user
+  password: seaurl_9876
+  sslmode: disable
+  maxOpenConns: 10
+  maxIdleConns: 10
+  maxIdleTime: 15m
+log:
   logPath: ./storage/seaurl.log

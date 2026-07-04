@@ -9,8 +9,8 @@ import (
 	"time"
 
 	"seaurl/internal/config"
-	"seaurl/internal/database"
 	"seaurl/internal/logger"
+	"seaurl/internal/postgres"
 	"seaurl/internal/server"
 )
 
@@ -50,7 +50,7 @@ func main() {
 	}
 	defer logFile.Close()
 
-	db, err := database.New(cfg)
+	db, err := postgres.New(&cfg.Postgres)
 	if err != nil {
 		slog.Error("failed to initialize database", slog.String("error", err.Error()))
 	}

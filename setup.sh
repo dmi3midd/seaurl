@@ -13,12 +13,7 @@ if [ ! -f config.yaml ]; then
     fi
 fi
 
-# 3. Database and Log files
-if [ ! -f storage/seaurl.db ]; then
-    echo -e "Waiting for database file..."
-    touch storage/seaurl.db
-fi
-
+# 3. Log file
 if [ ! -f storage/seaurl.log ]; then
     echo -e "Waiting for log file..."
     touch storage/seaurl.log

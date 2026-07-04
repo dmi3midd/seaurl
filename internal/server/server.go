@@ -6,18 +6,18 @@ import (
 	_ "github.com/joho/godotenv/autoload"
 
 	"seaurl/internal/config"
-	"seaurl/internal/database"
+	"seaurl/internal/postgres"
 	"seaurl/internal/repository"
 	"seaurl/internal/service"
 )
 
 type Server struct {
 	cfg     config.Config
-	db      database.DBService
+	db      postgres.PostgresService
 	service service.URLService
 }
 
-func NewServer(cfg *config.Config, db database.DBService) *http.Server {
+func NewServer(cfg *config.Config, db postgres.PostgresService) *http.Server {
 	urlRepository := repository.NewURLStorage(db.GetDB())
 	newServer := &Server{
 		cfg:     *cfg,

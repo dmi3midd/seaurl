@@ -2,8 +2,6 @@
 
 FROM golang:1.26-alpine AS builder
 
-RUN apk add --no-cache gcc musl-dev
-
 WORKDIR /app
 
 COPY go.mod go.sum ./
@@ -14,7 +12,7 @@ COPY . .
 
 RUN ./setup.sh
 
-RUN CGO_ENABLED=1 GOOS=linux go build -o seaurl ./cmd/api/main.go
+RUN CGO_ENABLED=0 GOOS=linux go build -o seaurl ./cmd/api/main.go
 
 # Runner stage
 

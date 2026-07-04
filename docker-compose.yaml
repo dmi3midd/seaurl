@@ -1,12 +1,38 @@
-version: '3.8'
+version: "3.8"
 
 services:
-  seaurl:
-    build: .
-    container_name: seaurl
+  postgres:
+    image: postgres:17-alpine
+    container_name: seaurl-db
     restart: unless-stopped
+    profiles: [db]
+    environment:
+      POSTGRES_DB: seaurl
+      POSTGRES_USER: seaurl_user
+      POSTGRES_PASSWORD: seaurl_9876
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U seaurl_user -d seaurl"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    container_name: seaurl-app
+    restart: unless-stopped
+    env_file:
+      - .env
     ports:
       - "2900:2900"
     volumes:
       - ./config.yaml:/app/config.yaml:ro
       - ./storage:/app/storage
+
+volumes:
+  postgres_data:
